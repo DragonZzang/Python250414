@@ -1,0 +1,58 @@
+import os
+import shutil
+from pathlib import Path
+
+# 다운로드 디렉터리 경로
+DOWNLOAD_DIR = Path(r"C:\Users\student\Downloads")
+
+# 분류 규칙: 확장자 -> 대상 폴더
+FILE_CATEGORIES = {
+    "images": [".jpg", ".jpeg"],
+    "data": [".csv", ".xlsx"],
+    "docs": [".txt", ".doc", ".pdf"],
+    "archive": [".zip"],
+}
+
+# 대상 루트 디렉터리 (현재 작업 디렉터리 기준)
+DEST_ROOT = Path.cwd()
+
+def ensure_directory(path: Path):
+    """지정된 경로가 없으면 생성"""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+
+def get_category(extension: str) -> str:
+    """파일 확장자를 기반으로 카테고리 이름 반환"""
+    for category, ext_list in FILE_CATEGORIES.items():
+        if extension.lower() in ext_list:
+            return category
+    return None
+
+def move_files():
+    for item in DOWNLOAD_DIR.iterdir():
+        if item.is_file():
+            ext = item.suffix.lower()
+            category = get_category(ext)
+            if category:
+                dest_dir = DEST_ROOT / category
+                ensure_directory(dest_dir)
+                dest_path = dest_dir / item.name
+
+                # 중복 방지를 위한 이름 변경 로직 (옵션)
+                if dest_path.exists():
+                    base = dest_path.stem
+                    suffix = dest_path.suffix
+                    counter = 1
+                    while True:
+                        alt_name = f"{base}_{counter}{suffix}"
+                        alt_path = dest_dir / alt_name
+                        if not alt_path.exists():
+                            dest_path = alt_path
+                            break
+                        counter += 1
+
+                shutil.move(str(item), str(dest_path))
+                print(f"Moved: {item.name} → {dest_path}")
+
+if __name__ == "__main__":
+    move_files()
