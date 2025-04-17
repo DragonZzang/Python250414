@@ -65,7 +65,7 @@
      </font>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>웹과 연동</string>
     </property>
    </widget>
    <widget class="QLabel" name="showlable">
